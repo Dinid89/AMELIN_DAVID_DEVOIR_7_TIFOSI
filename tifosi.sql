@@ -1,0 +1,3 @@
+CREATE DATABASE IF NOT EXISTS "tifosi" DEFAULT CHARACTER SET latin1 COLLATE latin1_swedish_ci;
+USE "tifosi";
+
