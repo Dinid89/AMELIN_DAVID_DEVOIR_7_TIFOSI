@@ -56,5 +56,34 @@ PRIMARY KEY (id_menu)
 
 /*Creation de la table des composants ingredients */
 CREATE TABLE comprend (
+    id_focaccia INT NOT NULL,
+    id_ingredient INT NOT NULL,
+);
 
-)
+/*Creation de la table menu vers focaccia */
+CREATE TABLE constitue (
+    id_focaccia INT NOT NULL,
+    id_menu INT NOT NULL,
+
+);
+
+/*Creation de la table client achete menu */
+CREATE TABLE achete (
+    id_client INT NOT NULL,
+    id_menu INT NOT NULL,
+
+);
+
+/*Creation de la table menu contient boisson */
+CREATE TABLE contient (
+    id_menu INT NOT NULL,
+    id_boisson INT NOT NULL,
+
+);
+
+/*Creation de la table boisson appartient a marque */
+CREATE TABLE appartient (
+    id_marque INT NOT NULL,
+    id_boisson INT NOT NULL,
+
+);
