@@ -11,6 +11,16 @@ SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
 SET time_zone = "+00:00";
 
+DROP DATABASE IF EXISTS tifosi;
+CREATE DATABASE tifosi DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+USE tifosi;
+
+/*Creation d'un utilisateur */
+DROP USER IF EXISTS 'tifosi'@'localhost';
+CREATE USER `tifosi`@`localhost` IDENTIFIED BY 'Admin123!';
+GRANT ALL PRIVILEGES ON tifosi.* TO `tifosi`@`localhost`;
+FLUSH PRIVILEGES; 
+
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -393,21 +403,121 @@ COMMIT;
 /* LISTE DES REQUETES */
 
 /* REQUETE 1 : AFFICHAGE DES FOCACCIAS PAR ORDRE ALPHABETIQUE */
+SELECT nom_focaccia FROM focaccia ORDER BY nom_focaccia;
+/* Résultats : 
+Américaine
+Emmentalaccia
+Gorgonzollaccia
+Hawaienne
+Mozaccia
+Paysanne
+Raclaccia
+Tradizione */
 
 /* REQUETE 2 : NOMBRE TOTAL D'INGREDIENTS */
+SELECT COUNT(*) id_ingredient FROM ingredient;
+/* Résultats :  25 ingredients */
 
 /* REQUETE 3 : AFFICHER LE PRIX MOYEN DES FOCACCIAS */
+SELECT AVG(prix_focaccia) AS AveragePrice FROM focaccia;
+/* Resultat prix moyen : 10,37 */
+
 
 /* REQUETE 4 : AFFICHER LA LISTE DES BOISSONS AVEC LEUR MARQUE TRIEE PAR NOM */
+SELECT boisson.nom_boisson, marque.nom_marque FROM boisson
+INNER JOIN appartient ON boisson.id_boisson = appartient.id_boisson
+INNER JOIN marque ON appartient.id_marque = marque.id_marque
+ORDER BY boisson.nom_boisson ASC;
+/* Resultat :
+Capri-sun - Coca Cola
+Coca Cola Original - Coca Cola
+Coca Cola Zero - Coca Cola
+Eau de Source - Cristaline
+(....)
+*/
 
 /* REQUETE 5 : AFFICHER LES INGREDIENTS POUR UNE RACLACCIA */
+SELECT nom_ingredient AS ingredient_Raclaccia FROM focaccia 
+INNER JOIN comprend ON focaccia.id_focaccia = comprend.id_focaccia
+INNER JOIN ingredient ON comprend.id_ingredient = ingredient.id_ingredient 
+WHERE nom_focaccia = 'raclaccia';
+/* Resultat :
+Ail
+Base Tomate
+Champignon
+Cresson
+Parmesan
+Poivre
+Raclette
+ */
 
-/* REQUETE 6 : AFFICHER  LE NOM ET LE NOMBRE D'INGREDIENT POUR CHAQUE FOCACCIA */
+/* REQUETE 6 : AFFICHER LE NOM ET LE NOMBRE D'INGREDIENT POUR CHAQUE FOCACCIA */
+SELECT nom_focaccia, COUNT(comprend.id_ingredient) AS nombre_ingredient FROM focaccia
+INNER JOIN comprend ON focaccia.id_focaccia = comprend.id_focaccia
+GROUP BY focaccia.id_focaccia, focaccia.nom_focaccia
+ORDER BY focaccia.nom_focaccia;
+/* Resultat :
+Américaine
+8
+Emmentalaccia
+7
+Gorgonzollaccia
+8
+Hawaienne
+9
+Mozaccia
+10
+Paysanne
+12
+Raclaccia
+7
+Tradizione
+9
+*/
 
 /* REQUETE 7 : AFFICHER LE NOM DE LA FOCACCIA AVEC LE PLUS D'INGREDIENT */
+SELECT nom_focaccia, COUNT(comprend.id_ingredient) AS nombre_ingredient FROM focaccia
+INNER JOIN comprend ON focaccia.id_focaccia = comprend.id_focaccia
+GROUP BY focaccia.id_focaccia, focaccia.nom_focaccia
+ORDER BY nombre_ingredient DESC
+LIMIT 1;
+/* Resultat :
+Paysanne
+12
+ */
 
 /* REQUETE 8 : AFFICHER LES FOCACCIA AVEC DE L'AIL */
+SELECT nom_focaccia FROM focaccia
+INNER JOIN comprend ON focaccia.id_focaccia = comprend.id_focaccia
+INNER JOIN ingredient ON comprend.id_ingredient = ingredient.id_ingredient
+WHERE ingredient.nom_ingredient LIKE '%ail%'
+ORDER BY nom_focaccia;
+/* Resultat :
+Gorgonzollaccia
+Mozaccia
+Paysanne
+Raclaccia
+*/
 
 /* REQUETE 9 : AFFICHER LES INGREDIENTS NON UTILISES */
+SELECT nom_ingredient FROM ingredient
+LEFT JOIN comprend ON ingredient.id_ingredient = comprend.id_ingredient
+WHERE comprend.id_ingredient IS NULL
+ORDER BY ingredient.nom_ingredient ASC;
+/* Resultat :
+Salami
+Tomate cerise
+ */
 
 /* REQUETE 10 : AFFICHER LES FOCACCIAS SANS CHAMPIGNONS  */
+SELECT nom_focaccia FROM focaccia
+WHERE focaccia.id_focaccia NOT IN ( 
+    SELECT comprend.id_focaccia
+    FROM comprend
+    INNER JOIN ingredient ON comprend.id_ingredient = ingredient.id_ingredient
+    WHERE ingredient.nom_ingredient LIKE '%champignon%' )
+ORDER BY nom_focaccia ASC;
+/* Resultat :
+Hawaienne
+Américaine
+*/
